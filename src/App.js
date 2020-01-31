@@ -69,11 +69,11 @@ export const TextField = props => {
   }
 
   return (
-    <Field>
+    <Field component='input' {...props}>
       {({ input, meta }) => (
         <div style={styles.container}>
           <label>{label}</label>
-          <Field component='input' {...props} />
+          <input {...props} />
           {error && touched && <div style={styles.error}>{error}</div>}
         </div>
       )}
