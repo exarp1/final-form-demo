@@ -1,12 +1,20 @@
 import React from 'react'
 
+import { TextField } from 'rmwc'
+import '@material/textfield/dist/mdc.textfield.css'
+import '@material/floating-label/dist/mdc.floating-label.css'
+import '@material/notched-outline/dist/mdc.notched-outline.css'
+import '@material/line-ripple/dist/mdc.line-ripple.css'
+
 import { Form, FormSpy, Field } from 'react-final-form'
+import createDecorator from 'final-form-focus'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const showResults = async values => {
   await sleep(1000) // simulate server latency
   window.alert(JSON.stringify(values, undefined, 2))
 }
+const focusOnError = createDecorator()
 const required = value => (value ? undefined : 'Required')
 
 const styles = {
@@ -31,9 +39,10 @@ function App() {
           subscription={{
             submitting: true,
           }}
+          decorators={[focusOnError]}
         >
           {({ handleSubmit, values, submitting }) => (
-            <form onSubmit={handleSubmit} validate={values => {}}>
+            <form onSubmit={handleSubmit}>
               <div>
                 <Field
                   name='firstName'
@@ -49,11 +58,13 @@ function App() {
                 >
                   {({ input, meta, placeholder }) => (
                     <div style={styles.active(meta.active)}>
-                      <label>First Name</label>
-                      <input {...input} placeholder={placeholder} />
-                      {meta.error && meta.touched && (
-                        <span style={styles.error}>{meta.error}</span>
-                      )}
+                      <Input
+                        {...input}
+                        {...meta}
+                        type={'text'}
+                        label={placeholder}
+                        placeholder={placeholder}
+                      />
                     </div>
                   )}
                 </Field>
@@ -71,11 +82,13 @@ function App() {
                 >
                   {({ input, meta, placeholder }) => (
                     <div style={styles.active(meta.active)}>
-                      <label>Last Name</label>
-                      <input {...input} placeholder={placeholder} />
-                      {meta.error && meta.touched && (
-                        <span style={styles.error}>{meta.error}</span>
-                      )}
+                      <Input
+                        {...input}
+                        {...meta}
+                        type={'text'}
+                        label={placeholder}
+                        placeholder={placeholder}
+                      />
                     </div>
                   )}
                 </Field>
@@ -93,11 +106,13 @@ function App() {
                 >
                   {({ input, meta, placeholder }) => (
                     <div style={styles.active(meta.active)}>
-                      <label>Email</label>
-                      <input {...input} placeholder={placeholder} />
-                      {meta.error && meta.touched && (
-                        <span style={styles.error}>{meta.error}</span>
-                      )}
+                      <Input
+                        {...input}
+                        {...meta}
+                        type={'email'}
+                        label={'Email'}
+                        placeholder={placeholder}
+                      />
                     </div>
                   )}
                 </Field>
@@ -118,27 +133,26 @@ function App() {
   )
 }
 
-export const TextField = props => {
-  const { error, touched, name, label, placeholder } = props
+export const Input = props => {
+  const { error, touched, active, type } = props
   const styles = {
     container: { margin: 10 },
+    active: isActive => {
+      return isActive
+        ? { borderColor: 'green', borderWidth: 10, background: 'lightGreen' }
+        : { borderColor: 'grey', borderWidth: 10 }
+    },
     error: {
-      marginTop: 5,
-      fontSize: '0.8em',
+      fontWeight: 800,
       color: 'red',
     },
   }
 
   return (
-    <Field component='input' {...props}>
-      {({ input, meta }) => (
-        <div style={styles.container}>
-          <label>{label}</label>
-          <input {...props} />
-          {error && touched && <div style={styles.error}>{error}</div>}
-        </div>
-      )}
-    </Field>
+    <div style={{ ...styles.active(active), ...styles.container }}>
+      <TextField type={type} invalid={error} {...props} />
+      {error && touched && <div style={styles.error}>{error}</div>}
+    </div>
   )
 }
 
