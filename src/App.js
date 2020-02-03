@@ -1,8 +1,25 @@
 import React from 'react'
-import logo from './logo.svg'
-import './App.css'
 
-import { Form, Field } from 'react-final-form'
+import { Form, FormSpy, Field } from 'react-final-form'
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const showResults = async values => {
+  await sleep(1000) // simulate server latency
+  window.alert(JSON.stringify(values, undefined, 2))
+}
+const required = value => (value ? undefined : 'Required')
+
+const styles = {
+  active: isActive => {
+    return isActive
+      ? { borderColor: 'green', borderWidth: 10, background: 'lightGreen' }
+      : { borderColor: 'grey', borderWidth: 10 }
+  },
+  error: {
+    fontWeight: 800,
+    color: 'red',
+  },
+}
 
 function App() {
   return (
@@ -10,49 +27,93 @@ function App() {
       <div>
         <h1>✓FINAL FORM✓</h1>
         <Form
-          onSubmit={values =>
-            window.alert(JSON.stringify(values, undefined, 2))
-          }
+          onSubmit={showResults}
+          subscription={{
+            submitting: true,
+          }}
         >
-          {({ handleSubmit }) => (
-            <form onSubmit={handleSubmit}>
+          {({ handleSubmit, values, submitting }) => (
+            <form onSubmit={handleSubmit} validate={values => {}}>
               <div>
-                <TextField
-                  name={'firstName'}
-                  label={'First Name'}
-                  placeholder={'Enter First Name'}
-                />
-                <TextField
-                  name={'lastName'}
-                  label={'Last Name'}
-                  placeholder={'Enter Last Name'}
-                />
-                <TextField
-                  name={'email'}
-                  label={'email'}
-                  placeholder={'Enter email'}
-                  type={'email'}
-                />
+                <Field
+                  name='firstName'
+                  component='input'
+                  placeholder='First Name'
+                  validate={required}
+                  subscription={{
+                    value: true,
+                    active: true,
+                    error: true,
+                    touched: true,
+                  }}
+                >
+                  {({ input, meta, placeholder }) => (
+                    <div style={styles.active(meta.active)}>
+                      <label>First Name</label>
+                      <input {...input} placeholder={placeholder} />
+                      {meta.error && meta.touched && (
+                        <span style={styles.error}>{meta.error}</span>
+                      )}
+                    </div>
+                  )}
+                </Field>
+                <Field
+                  name='lastName'
+                  component='input'
+                  placeholder='Last Name'
+                  validate={required}
+                  subscription={{
+                    value: true,
+                    active: true,
+                    error: true,
+                    touched: true,
+                  }}
+                >
+                  {({ input, meta, placeholder }) => (
+                    <div style={styles.active(meta.active)}>
+                      <label>Last Name</label>
+                      <input {...input} placeholder={placeholder} />
+                      {meta.error && meta.touched && (
+                        <span style={styles.error}>{meta.error}</span>
+                      )}
+                    </div>
+                  )}
+                </Field>
+                <Field
+                  name='email'
+                  component='input'
+                  placeholder='email'
+                  validate={required}
+                  subscription={{
+                    value: true,
+                    active: true,
+                    error: true,
+                    touched: true,
+                  }}
+                >
+                  {({ input, meta, placeholder }) => (
+                    <div style={styles.active(meta.active)}>
+                      <label>Email</label>
+                      <input {...input} placeholder={placeholder} />
+                      {meta.error && meta.touched && (
+                        <span style={styles.error}>{meta.error}</span>
+                      )}
+                    </div>
+                  )}
+                </Field>
               </div>
-              <button type='submit'>Submit</button>
+              <button type='submit' disabled={submitting}>
+                Submit
+              </button>
+              <FormSpy subscription={{ values: true }}>
+                {({ values }) => (
+                  <pre>{JSON.stringify(values, undefined, 2)}</pre>
+                )}
+              </FormSpy>
             </form>
           )}
         </Form>
       </div>
-      <header className='App-header'>
-        <img src={logo} className='App-logo' alt='logo' />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          Learn React
-        </a>
-      </header>
     </div>
   )
 }
